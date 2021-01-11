@@ -1,5 +1,7 @@
 package br.com.lucaspestana.calc.visao;
 
+import br.com.lucaspestana.calc.modelo.Memoria;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -10,7 +12,7 @@ public class Display extends JPanel {
 
     public Display() {
         setBackground(new Color(46, 49, 50));
-        label = new JLabel("122334,44");
+        label = new JLabel(Memoria.getInstancia().getTextoAtual());
         label.setForeground(Color.white);
         label.setFont(new Font("courier", Font.PLAIN, 30));
 
