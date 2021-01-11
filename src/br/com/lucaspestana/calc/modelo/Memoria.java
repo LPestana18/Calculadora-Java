@@ -6,7 +6,7 @@ import java.util.List;
 public class Memoria {
 
     private enum TipoComando {
-        ZERAR, NUMERO, DIVISAO, MULT, SUB, SOMA, IGUAL, VIRGULA
+        ZERAR, SINAL, NUMERO, DIVISAO, MULT, SUB, SOMA, IGUAL, VIRGULA
     }
 
     private static final Memoria instancia = new Memoria();
@@ -40,16 +40,20 @@ public class Memoria {
 
         if (tipoComando == null) {
             return;
-        }else if (tipoComando == TipoComando.ZERAR) {
+        } else if (tipoComando == TipoComando.ZERAR) {
             textoAtual = "";
             textoBuffer = "";
             substituir = false;
             ultimaOperacao = null;
-        }else if(tipoComando == TipoComando.NUMERO
+        } else if (tipoComando == TipoComando.SINAL && textoAtual.contains("-")) {
+            textoAtual = textoAtual.substring(1);
+        }else if(tipoComando == TipoComando.SINAL && !textoAtual.contains("-")) {
+            textoAtual = "-" + textoAtual;
+        } else if (tipoComando == TipoComando.NUMERO
                 || tipoComando == TipoComando.VIRGULA) {
             textoAtual = substituir ? texto : textoAtual + texto;
             substituir = false;
-        }else {
+        } else {
             substituir = true;
             textoAtual = obterResultadoOperacao();
             textoBuffer = textoAtual;
@@ -60,7 +64,7 @@ public class Memoria {
     }
 
     private String obterResultadoOperacao() {
-        if (ultimaOperacao == null) {
+        if (ultimaOperacao == null || ultimaOperacao == TipoComando.IGUAL) {
             return textoAtual;
         }
         double numeroBuffer =
@@ -71,17 +75,17 @@ public class Memoria {
         double resultado = 0;
         if (ultimaOperacao == TipoComando.SOMA) {
             resultado = numeroBuffer + numeroAtual;
-        }else if(ultimaOperacao == TipoComando.SUB) {
+        } else if (ultimaOperacao == TipoComando.SUB) {
             resultado = numeroBuffer - numeroAtual;
-        }else if(ultimaOperacao == TipoComando.MULT) {
+        } else if (ultimaOperacao == TipoComando.MULT) {
             resultado = numeroBuffer * numeroAtual;
-        }else if (ultimaOperacao == TipoComando.DIVISAO) {
+        } else if (ultimaOperacao == TipoComando.DIVISAO) {
             resultado = numeroBuffer / numeroAtual;
         }
 
         String texto = Double.toString(resultado).replace(".", ",");
         boolean inteiro = texto.endsWith(",0");
-        return inteiro ? texto.replace(",0","") : texto;
+        return inteiro ? texto.replace(",0", "") : texto;
     }
 
     private TipoComando detectarTipoComando(String texto) {
@@ -93,22 +97,24 @@ public class Memoria {
         try {
             Integer.parseInt(texto);
             return TipoComando.NUMERO;
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             // Quando não for número...
             if ("AC".equals(texto)) {
                 return TipoComando.ZERAR;
-            }else if("/".equals(texto)) {
+            } else if ("/".equals(texto)) {
                 return TipoComando.DIVISAO;
-            }else if("*".equals(texto)) {
+            } else if ("*".equals(texto)) {
                 return TipoComando.MULT;
-            }else if ("-".equals(texto)) {
+            } else if ("-".equals(texto)) {
                 return TipoComando.SUB;
-            }else if("=".equals(texto)) {
+            } else if ("=".equals(texto)) {
                 return TipoComando.IGUAL;
-            }else if(",".equals(texto) && !textoAtual.contains(",")){
+            } else if (",".equals(texto) && !textoAtual.contains(",")) {
                 return TipoComando.VIRGULA;
-            }else if("+".equals(texto)) {
+            } else if ("+".equals(texto)) {
                 return TipoComando.SOMA;
+            } else if ("±".equals(texto)) {
+                return TipoComando.SINAL;
             }
         }
 
